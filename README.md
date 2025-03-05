@@ -3,8 +3,9 @@ a ticketing app for everyone by Kreative Dojo
 
 ## Prerequisites
 
-- Docker
-- Docker Compose
+- Python 3.11+
+- Docker (for PostgreSQL)
+- Docker Compose (for PostgreSQL)
 
 ## Running the Project
 
@@ -14,9 +15,28 @@ a ticketing app for everyone by Kreative Dojo
    cd dojiket
    ```
 
-2. Start the containers:
+2. Create and activate virtual environment:
    ```bash
-   docker-compose up --build
+   python -m venv venv
+   # On Windows:
+   .\venv\Scripts\activate
+   # On Unix or MacOS:
+   source venv/bin/activate
+   ```
+
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Start PostgreSQL:
+   ```bash
+   docker-compose up -d
+   ```
+
+5. Run the FastAPI application:
+   ```bash
+   uvicorn app.main:app --reload --port 8080
    ```
 
 ## Accessing the Services

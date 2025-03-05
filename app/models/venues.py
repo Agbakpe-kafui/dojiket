@@ -1,7 +1,7 @@
 from sqlalchemy import Boolean, Column, Integer, String, DateTime, ForeignKey, Text, UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from database import Base
+from ..database import Base
 import uuid
 
 class Venue(Base):

@@ -4,8 +4,8 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from typing import Optional
-from database import get_db
-from crud import users as users_crud
+from ..database import get_db
+from ..crud import users as users_crud
 
 SECRET_KEY = "your-secret-key"  # Change this in production
 ALGORITHM = "HS256"

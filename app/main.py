@@ -1,6 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import auth, users, events, registrations, venues
+from app.routers import auth, users, events, registrations, venues
+from .database import engine
+from .models import users as user_models, events as event_models, venues as venue_models, registrations as registration_models
+
+# Create database tables
+user_models.Base.metadata.create_all(bind=engine)
+event_models.Base.metadata.create_all(bind=engine)
+venue_models.Base.metadata.create_all(bind=engine)
+registration_models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Event Registration API")
 

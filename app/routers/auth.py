@@ -11,26 +11,35 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 @router.post("/register", response_model=user_schemas.Token)
 def register_user(user: user_schemas.UserCreate, db: Session = Depends(get_db)):
-    # Check if user exists
-    db_user = db.query(user_models.User).filter(user_models.User.email == user.email).first()
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    # Create new user
-    hashed_password = pwd_context.hash(user.password)
-    db_user = user_models.User(
-        email=user.email,
-        hashed_password=hashed_password,
-        full_name=user.full_name,
-        user_type=user.user_type
-    )
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    
-    # Create access token
-    access_token = create_access_token(data={"sub": str(db_user.id)})
-    return {"access_token": access_token, "token_type": "bearer"}
+    # Debug wrapper: Catch any exceptions during registration
+    try:
+        # Check if user exists
+        db_user = db.query(user_models.User).filter(user_models.User.email == user.email).first()
+        if db_user:
+            raise HTTPException(status_code=400, detail="Email already registered")
+        
+        # Create new user
+        hashed_password = pwd_context.hash(user.password)
+        db_user = user_models.User(
+            email=user.email,
+            hashed_password=hashed_password,
+            full_name=user.full_name,
+            user_type=user.user_type,
+            phone=user.phone
+        )
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+        
+        # Create access token
+        access_token = create_access_token(data={"sub": str(db_user.id)})
+        return {"access_token": access_token, "token_type": "bearer"}
+    except Exception as e:
+        # Debug: Print the actual error to server logs
+        print(f"Registration error: {str(e)}")
+        # Return a more detailed error message to client for debugging
+        # Note: In production, you might want to hide detailed errors
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/login", response_model=user_schemas.Token)
 def login(user_credentials: user_schemas.UserLogin, db: Session = Depends(get_db)):

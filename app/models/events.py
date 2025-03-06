@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, String, Float, DateTime, ForeignKey, Text, UUID
+from sqlalchemy import Boolean, Column, Integer, String, Numeric, DateTime, ForeignKey, Text, UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from ..database import Base
@@ -14,7 +14,7 @@ class Event(Base):
     description = Column(Text)
     event_date = Column(DateTime, nullable=False)
     capacity = Column(Integer)
-    price = Column(Float, default=0.0)
+    price = Column(Numeric(10, 2), default=0.0)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

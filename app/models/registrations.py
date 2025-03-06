@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Text, UUID, Enum
+from sqlalchemy import Column, Integer, String, Numeric, DateTime, ForeignKey, Text, UUID, Enum, Boolean, JSON
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from ..database import Base
@@ -10,6 +10,13 @@ class RegistrationStatus(str, enum.Enum):
     CONFIRMED = "confirmed"
     CANCELLED = "cancelled"
 
+class FieldType(str, enum.Enum):
+    TEXT = "text"
+    NUMBER = "number"
+    SELECT = "select"
+    DATE = "date"
+    EMAIL = "email"
+
 class EventRegistration(Base):
     __tablename__ = "event_registrations"
 
@@ -17,8 +24,8 @@ class EventRegistration(Base):
     event_id = Column(UUID, ForeignKey("events.id"), nullable=False)
     user_id = Column(UUID, ForeignKey("users.id"), nullable=False)
     registration_date = Column(DateTime, default=datetime.utcnow)
-    status = Column(Enum(RegistrationStatus), default=RegistrationStatus.PENDING)
-    amount_paid = Column(Float, default=0.0)
+    status = Column(String)  # According to ER diagram
+    amount_paid = Column(Numeric(10, 2), default=0.0)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -34,10 +41,10 @@ class EventFormField(Base):
     event_id = Column(UUID, ForeignKey("events.id"), nullable=False)
     field_name = Column(String, nullable=False)
     field_label = Column(String, nullable=False)
-    field_type = Column(String, nullable=False)  # text, number, select, etc.
+    field_type = Column(String, nullable=False)
     is_required = Column(Boolean, default=False)
-    validation_rules = Column(Text)  # JSON string
-    field_options = Column(Text)  # JSON string for select/radio options
+    validation_rules = Column(JSON, nullable=True)
+    field_options = Column(JSON, nullable=True)
     display_order = Column(Integer)
 
     # Relationships

@@ -7,7 +7,11 @@ SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/eventdb
 # SQLALCHEMY_DATABASE_URL = "postgresql://user:password@localhost/dbname"
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL
+    SQLALCHEMY_DATABASE_URL,
+    # Debug: Enable SQL statement logging
+    # This will show all SQL queries in the console
+    # Helpful for debugging database issues
+    echo=True
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

@@ -5,6 +5,7 @@ from ..schemas import users as user_schemas
 from ..models import users as user_models
 from passlib.context import CryptContext
 from ..middleware.auth import create_access_token, get_current_user
+from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -57,3 +58,37 @@ def login(user_credentials: user_schemas.UserLogin, db: Session = Depends(get_db
 @router.get("/me", response_model=user_schemas.User)
 def get_current_user(current_user: user_models.User = Depends(get_current_user)):
     return current_user
+
+@router.post("/token", response_model=user_schemas.Token)
+async def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+):
+    # Print debug info
+    print(f"Received username: {form_data.username}")
+    print(f"Received password length: {len(form_data.password)}")
+    print(f"Client ID: {form_data.client_id}")
+    print(f"Client Secret: {form_data.client_secret}")
+    print(f"Scopes: {form_data.scopes}")
+    print(f"Grant Type: {form_data.grant_type}")
+
+    user = db.query(user_models.User).filter(user_models.User.email == form_data.username).first()
+    
+    if not user:
+        print(f"User not found for email: {form_data.username}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    if not pwd_context.verify(form_data.password, user.hashed_password):
+        print("Password verification failed")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    access_token = create_access_token(data={"sub": str(user.id)})
+    return {"access_token": access_token, "token_type": "bearer"}
